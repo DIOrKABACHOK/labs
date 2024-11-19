@@ -49,13 +49,19 @@ def length_stats(cheque_df):
     return words_lengths_series
 
 
-def get_long(cheque_df, min_length1=5, min_length2=5, min_length3=5, min_length4=5):
-    filtered_cheque_df1 = cheque_df[cheque_df["product"].str.len() >= min_length1]
-    filtered_cheque_df2 = cheque_df[cheque_df["product"].str.len() >= min_length2]
-    filtered_cheque_df3 = cheque_df[cheque_df["product"].str.len() >= min_length3]
-    filtered_cheque_df4 = cheque_df[cheque_df["product"].str.len() >= min_length4]
+def get_long(cheque_df, max_length=None, min_quantity=None, min_price=None):
+    filtered_cheque_df = cheque_df.copy()
 
-    return (filtered_cheque_df1, filtered_cheque_df2, filtered_cheque_df3, filtered_cheque_df4)
+    if max_length is not None:
+        filtered_cheque_df = filtered_cheque_df[filtered_cheque_df["product"].str.len() <= max_length]
+
+    if min_quantity is not None:
+        filtered_cheque_df = filtered_cheque_df[filtered_cheque_df["number"] >= min_quantity]
+
+    if min_price is not None:
+        filtered_cheque_df = filtered_cheque_df[filtered_cheque_df["price"] >= min_price]
+
+    return filtered_cheque_df
 
 
 price_list = pd.read_csv("price_list.csv")
@@ -74,8 +80,15 @@ stats = length_stats(cheque_df)
 print("\nСтатистика по длинам слов:")
 print(stats)
 
-filtered_cheques = get_long(cheque_df, min_length1=5, min_length2=6, min_length3=7, min_length4=8)
+filtered_cheque1 = get_long(cheque_df, max_length=6)
+filtered_cheque2 = get_long(cheque_df, min_quantity=5)
+filtered_cheque3 = get_long(cheque_df, min_price=4.0)
 
-for i, filtered_cheque in enumerate(filtered_cheques, start=1):
-    print(f"\nФильтрованный чек {i}:")
-    print(filtered_cheque)
+print("\nФильтрованный чек по максимальной длине названия товара (6 символов):")
+print(filtered_cheque1)
+
+print("\nФильтрованный чек по минимальному количеству купленных товаров (5 шт.):")
+print(filtered_cheque2)
+
+print("\nФильтрованный чек по минимальной цене товара (4.0 у.е.):")
+print(filtered_cheque3)
