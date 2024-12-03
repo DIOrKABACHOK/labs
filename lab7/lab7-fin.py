@@ -68,14 +68,17 @@ def return_book():
 
 def view_book_records():
     cursor.execute('''
-    SELECT Readers.name, Books.title, Records.taking_date, Records.returning_date
+    SELECT Readers.name, GROUP_CONCAT(Books.title || ' (' || Records.taking_date || ' - ' || COALESCE(Records.returning_date, 'не возвращена') || ')', ', ') AS books
     FROM Records
     JOIN Readers ON Records.reader_id = Readers.id
     JOIN Books ON Records.book_id = Books.id
+    GROUP BY Readers.name
     ''')
     records = cursor.fetchall()
     for record in records:
-        print(record)
+        print(f"Читатель: {record[0]}")
+        print(f"Книги: {record[1]}")
+        print()
 
 
 def main():
